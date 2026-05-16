@@ -62,15 +62,21 @@ async def start(message: Message):
     )
 
 # TEST BOSHLASH
-@dp.message(F.text == "30 TALIK TEST")
+@dp.message(F.text.startswith("TEST"))
 async def start_test(message: Message):
 
-    selected = random.sample(questions, 30)
+    set_number = int(message.text.split()[-1])
+
+    selected = [
+        q for q in questions
+        if int(q["SET"]) == set_number
+    ]
 
     users[message.chat.id] = {
         "questions": selected,
         "current": 0,
-        "correct": 0
+        "correct": 0,
+        "set": set_number
     }
 
     await send_question(message.chat.id)
