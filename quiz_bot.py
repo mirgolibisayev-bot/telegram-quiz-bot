@@ -43,10 +43,16 @@ users = {}
 @dp.message(CommandStart())
 async def start(message: Message):
 
+    buttons = []
+
+    for i in range(1, 32):
+
+        buttons.append(
+            [KeyboardButton(text=f"TEST {i}")]
+        )
+
     kb = ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="30 TALIK TEST")]
-        ],
+        keyboard=buttons,
         resize_keyboard=True
     )
 
