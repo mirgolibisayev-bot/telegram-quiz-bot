@@ -1,6 +1,9 @@
 import csv
 import random
 import asyncio
+import threading
+
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
@@ -11,6 +14,22 @@ BOT_TOKEN = "8682058131:AAH9tvRDuEnndsziV3y9Wm6wztpr20XgrGs"
 
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher()
+
+# Render uchun fake web server
+class Handler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'Bot ishlayapti')
+
+def run_web():
+
+    server = HTTPServer(("0.0.0.0", 10000), Handler)
+    server.serve_forever()
+
+threading.Thread(target=run_web).start()
 
 # CSV yuklash
 with open("telegram_quiz_questions.csv", encoding="utf-8") as f:
@@ -49,6 +68,12 @@ async def start_test(message: Message):
     }
 
     await send_question(message.chat.id)
+
+# QAYTA ISHLASH
+@dp.message(F.text == "🔁 QAYTA ISHLASH")
+async def restart_test(message: Message):
+
+    await start_test(message)
 
 # SAVOL YUBORISH
 async def send_question(chat_id):
@@ -92,6 +117,7 @@ async def send_question(chat_id):
         )
 
         return
+
     q = data["questions"][data["current"]]
 
     question = q["Question"]
@@ -103,6 +129,7 @@ async def send_question(chat_id):
         key = f"Option {i}"
 
         if key in q and q[key]:
+
             options.append(q[key][:100])
 
     correct = q["Correct Answer"]
